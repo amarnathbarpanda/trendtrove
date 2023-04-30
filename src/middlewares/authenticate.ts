@@ -1,21 +1,27 @@
-import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import {NextFunction, Request, Response} from 'express';
+import jwt, {JwtPayload} from 'jsonwebtoken';
 
-const authenticate = (req: Request, res: Response, next: NextFunction)=> {
-    const token = req.headers["x-access-token"];
 
-    if(!token){
+interface UserRequest extends Request {
+    user?: JwtPayload;
+}
+
+
+const authenticate = (req : UserRequest, res : Response, next : NextFunction) => {
+    const token = req.headers["x-access-token"] as string;
+
+    if (! token) {
         return res.status(403).json({message: "A token is required for authentication"});
     }
 
     try {
-        //@ts-ignore
-        const decode = jwt.verify(token, process.env.TOKEN_KEY)
-        //@ts-ignore
+        const decode = jwt.verify(token, process.env.TOKEN_KEY!)as JwtPayload
         req.user = decode;
     } catch (error) {
-        //@ts-ignore
-        return res.status(401).json({message: "Invalid Token", error:error.message});
+        if (error instanceof Error) {
+            return res.status(401).json({message: "Invalid Token", error: error.message});
+        }
+
     }
     return next();
 }

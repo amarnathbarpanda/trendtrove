@@ -9,8 +9,8 @@ export const validateSignUp = (schema: AnyZodObject) => async (req: Request, res
       } catch (err) {
         if (err instanceof z.ZodError) {
           res.status(400).json({ message: "Invalid Credentials", details: err.issues });
-        } else {
-          //@ts-ignore
+        } 
+        if (err instanceof Error) {
           res.status(500).json({ message: "Internal server error" , error: err.message});
         }
       }
@@ -23,8 +23,9 @@ export const validateSignIn = (schema: AnyZodObject) => async (req: Request, res
       } catch (err) {
         if (err instanceof z.ZodError) {
           res.status(400).json({ message: "Invalid Credentials", details: err.issues });
-        } else {
-          res.status(500).json({ message: "Internal server error" });
+        } 
+        if (err instanceof Error) {
+          res.status(500).json({ message: "Internal server error" , error: err.message});
         }
       }
 }
